@@ -60,11 +60,11 @@ class ElevatorCabin:
             target_i = 0
             if self.prev_moving_direction == es.GOING_DOWN:  # prefer levels below, which are closest to the current
                 self.level_button_pressed.sort()
-                while self.level_button_pressed[target_i] > self.cur_level_num:
+                while self.level_button_pressed[target_i] > self.cur_level_num and target_i < (len(self.level_button_pressed) - 1):
                     target_i += 1
             elif self.prev_moving_direction == es.GOING_UP:  # prefer levels above, which are closest to the current
                 self.level_button_pressed.sort(reverse=True)
-                while self.level_button_pressed[target_i] < self.cur_level_num:
+                while self.level_button_pressed[target_i] < self.cur_level_num and target_i < (len(self.level_button_pressed) - 1):
                     target_i += 1
 
             target_level = self.level_button_pressed[target_i]

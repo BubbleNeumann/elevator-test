@@ -61,6 +61,17 @@ class SemaphoreTest(unittest.TestCase):
         time.sleep(es.GOING_UP.value[1] + es.OPENING_DOORS.value[1])
         self.assertEqual(lc.LEVEL_STACK[0].e2_level, 2)
 
+    def test_initial_test_case(self):
+        self.semaphore.exec_command('level 1 --call')
+        time.sleep(es.OPENING_DOORS.value[1] + es.STAYS_WITH_OPEN_DOORS.value[1])
+        self.semaphore.exec_command('cabin 1 --press-button 14')
+        self.semaphore.exec_command('level 15 --call')
+        time.sleep(es.GOING_UP.value[1] * 15 + es.OPENING_DOORS.value[1] + es.STAYS_WITH_OPEN_DOORS.value[1])
+        self.semaphore.exec_command('cabin 0 --press-button 1')
+        time.sleep(es.GOING_DOWN.value[1] * 15 + es.OPENING_DOORS.value[1] + es.STAYS_WITH_OPEN_DOORS.value[1])
+        self.assertEqual(self.semaphore.e1.cur_level_num, 1)
+        self.assertEqual(self.semaphore.e2.cur_level_num, 14)
+
 
 if __name__ == '__main__':
     unittest.main()
