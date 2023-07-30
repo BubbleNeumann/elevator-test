@@ -23,7 +23,6 @@ class Semaphore:
     Assigns tasks to elevator cabins.
     Tracks time needed for each task, handles interrupts.
     """
-
     def __init__(self):
         self.e1 = ElevatorCabin(Level.INITIAL_ELEVATOR_LEVEL, Level.INITIAL_ELEVATOR_STATE)
         self.e2 = ElevatorCabin(Level.INITIAL_ELEVATOR_LEVEL, Level.INITIAL_ELEVATOR_STATE)
@@ -82,8 +81,8 @@ class Semaphore:
         LevelsController.wait_list.append(level_num)
         self.mutex.release()
 
-    def handle_console_input(self) -> bool:
-        inp = input().split()
+    def exec_command(self, command: str):
+        inp = command.split()
         match inp[0]:
             case 'level':
                 if inp[1].isdigit() and Level.MIN_LEVEL <= int(inp[1]) <= Level.MAX_LEVEL:
@@ -101,15 +100,28 @@ class Semaphore:
                 if inp[1].isdigit() and (int(inp[1]) == 0 or int(inp[1]) == 1) and inp[2] == '--press-button':
                     match inp[3]:
                         case 'open':
-                            pass
+                            if int(inp[1]) == 0:
+                                self.e1.press_door_open_button(e_id=0, mutex=self.mutex)
+                            else:
+                                self.e2.press_door_open_button(e_id=1, mutex=self.mutex)
                         case 'close':
-                            pass
+                            if int(inp[1]) == 0:
+                                self.e1.press_door_close_button(e_id=0, mutex=self.mutex)
+                            else:
+                                self.e2.press_door_close_button(e_id=1, mutex=self.mutex)
                         case 'call-dispatcher':
                             if int(inp[1]) == 0:
                                 self.e1.press_dispatcher_call_button()
                             else:
                                 self.e2.press_dispatcher_call_button()
-                    pass
+                        case _:
+                            if inp[3].isdigit():
+                                if int(inp[1]) == 0:
+                                    self.e1.press_level_button(level_num=int(inp[3]), e_id=0, mutex=self.mutex)
+                                else:
+                                    self.e2.press_level_button(level_num=int(inp[3]), e_id=1, mutex=self.mutex)
+                            else:
+                                print('Incorrect button parameter')
                 else:
                     print(f'Incorrect cabin parameter: {inp[1]} {inp[2]}')
             case 'help':
@@ -124,3 +136,7 @@ class Semaphore:
             case _:
                 print(f'Unknown caller: {inp[0]}')
         return True
+
+    def handle_console_input(self) -> bool:
+        inp = input()
+        return self.exec_command(inp)
