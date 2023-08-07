@@ -11,11 +11,19 @@ class SemaphoreTest(unittest.TestCase):
     Intermediate statuses are not checked since timings are not consistent due to multithreading.
     End status wait time is over-calculated.
     """
+
     def setUp(self) -> None:
         self.semaphore = Semaphore()
 
     def tearDown(self) -> None:
         self.semaphore.exec_command('quit')
+
+    def test_singleton_has_only_one_instance(self):
+        new_semaphore = Semaphore()  # should not create a new instance but return an existing one
+
+        # task gets assigned to an elevator of the self.semaphore instance
+        new_semaphore.e1.task_queue.extend([es.OPENING_DOORS, es.CLOSING_DOORS])
+        self.assertEqual(len(self.semaphore.e1.task_queue), 2)
 
     def test_second_elevator_goes_up(self):
         self.semaphore.exec_command('level 2 --call')
@@ -23,7 +31,7 @@ class SemaphoreTest(unittest.TestCase):
         self.assertEqual(self.semaphore.e2.cur_level_num, 2)
 
     def test_assign_task_to_first_elevator_when_second_one_is_busy(self):
-        self.semaphore.exec_command('level 3 --call')  # task gets assign to the second elevator by default
+        self.semaphore.exec_command('level 3 --call')  # task gets assigned to the second elevator by default
         self.semaphore.exec_command('level 2 --call')
         time.sleep(es.GOING_UP.value[1] * 2 + es.OPENING_DOORS.value[1] + es.OPENING_DOORS.value[1])
         self.assertEqual(self.semaphore.e1.cur_level_num, 2)
